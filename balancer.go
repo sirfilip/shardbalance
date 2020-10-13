@@ -1,5 +1,4 @@
 // shardbalance provides lru map with last access time
-// TODO write tests
 package shardbalance
 
 type Balancer interface {
@@ -11,18 +10,18 @@ type Balancer interface {
 type LruBasedBalancer struct {
 	shardAddresses ShardAddressCollection
 	shards         map[string]*shard
-	shardCapacity  int
+	shardCapacity  int64
 }
 
-func NewBalancer(shardCapacity int) *LruBasedBalancer {
-	return &LruBasedBalancer{shardAddresses: NewAddressCollection(), shardCapacity: shardCapacity, shards: make(map[string]*shard)}
+func New(shardCapacity int64) *LruBasedBalancer {
+	return &LruBasedBalancer{shardAddresses: newAddressCollection(), shardCapacity: shardCapacity, shards: make(map[string]*shard)}
 }
 
 func (b *LruBasedBalancer) Register(addr string) error {
 	if err := b.shardAddresses.Register(addr); err != nil {
 		return err
 	}
-	b.shards[addr] = NewLRU(b.shardCapacity)
+	b.shards[addr] = newShard(b.shardCapacity)
 	return nil
 }
 

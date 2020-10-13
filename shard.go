@@ -7,13 +7,13 @@ type shardNode struct {
 }
 
 type shard struct {
-	capacity int
+	capacity int64
 	cache    map[string]*shardNode
 	head     *shardNode
 	tail     *shardNode
 }
 
-func NewLRU(capacity int) *shard {
+func newShard(capacity int64) *shard {
 	return &shard{capacity: capacity, cache: make(map[string]*shardNode)}
 }
 
@@ -73,7 +73,7 @@ func (s *shard) remove(node *shardNode) {
 }
 
 func (s *shard) add(node *shardNode) {
-	if len(s.cache) == s.capacity {
+	if int64(len(s.cache)) == s.capacity {
 		s.remove(s.tail)
 	}
 	if len(s.cache) == 0 {

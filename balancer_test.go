@@ -30,7 +30,7 @@ func TestBalancer_Register(t *testing.T) {
 		},
 	} {
 		t.Run(title, func(t *testing.T) {
-			balancer := NewBalancer(42)
+			balancer := New(42)
 			for _, addr := range test.history {
 				err := balancer.Register(addr)
 				if err != nil {
@@ -64,7 +64,7 @@ func TestBalancer_Deregister(t *testing.T) {
 		},
 	} {
 		t.Run(title, func(t *testing.T) {
-			balancer := NewBalancer(42)
+			balancer := New(42)
 			for _, addr := range test.history {
 				err := balancer.Register(addr)
 				if err != nil {

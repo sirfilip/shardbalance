@@ -22,7 +22,7 @@ type shardAddressCollection struct {
 	tail  *shardCollNode
 }
 
-func NewAddressCollection() ShardAddressCollection {
+func newAddressCollection() ShardAddressCollection {
 	return &shardAddressCollection{cache: make(map[string]*shardCollNode)}
 }
 
