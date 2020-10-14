@@ -1,6 +1,8 @@
 package shardbalance
 
-import "sync"
+import (
+	"sync"
+)
 
 type ShardAddressCollection interface {
 	Register(addr string) error
@@ -41,25 +43,24 @@ func (col *shardAddressCollection) Itter() []string {
 func (col *shardAddressCollection) Register(addr string) error {
 	col.Lock()
 	defer col.Unlock()
+
 	_, found := col.cache[addr]
 	if found {
 		return ErrShardExists
 	}
 
 	node := &shardCollNode{addr: addr}
-	if len(col.cache) == 0 {
-		col.cache[addr] = node
+	col.cache[addr] = node
+
+	if len(col.cache) == 1 {
 		col.head = node
 		col.tail = node
 		return nil
 	}
 
 	node.prev = col.tail
-	if col.tail != nil {
-		col.tail.next = node
-	}
+	col.tail.next = node
 	col.tail = node
-	col.cache[addr] = node
 	return nil
 }
 

@@ -11,25 +11,25 @@ import (
 )
 
 type ShardCreateValidation struct {
-	addr string
+	Addr string
 }
 
 func (s ShardCreateValidation) Submit() error {
-	addr := strings.TrimSpace(s.addr)
+	addr := strings.TrimSpace(s.Addr)
 	if addr == "" {
-		return errors.New("addr is required")
+		return errors.New("address is required")
 	}
 	return nil
 }
 
 type ShardDestroyValidation struct {
-	addr string
+	Addr string
 }
 
 func (s ShardDestroyValidation) Submit() error {
-	addr := strings.TrimSpace(s.addr)
+	addr := strings.TrimSpace(s.Addr)
 	if addr == "" {
-		return errors.New("addr is required")
+		return errors.New("address is required")
 	}
 	return nil
 }
@@ -42,39 +42,39 @@ func createServer(capacity int64) *gin.Engine {
 	r.GET("/:key", func(c *gin.Context) {
 		addr, _, err := balancer.Addr(c.Param("key"))
 		if err == nil {
-			c.JSON(200, gin.H{"addr": addr})
+			c.JSON(200, gin.H{"address": addr})
 			return
 		}
 		log.Println(err)
 		c.JSON(404, gin.H{})
 	})
 
-	r.POST("/shard", func(c *gin.Context) {
+	r.POST("/shards", func(c *gin.Context) {
 		var err error
 
-		form := ShardCreateValidation{addr: c.PostForm("address")}
+		form := ShardCreateValidation{c.PostForm("address")}
 		if err = form.Submit(); err == nil {
-			err = balancer.Register(c.PostForm("address"))
+			err = balancer.Register(form.Addr)
 			if err == nil {
 				c.JSON(201, gin.H{})
 				return
 			}
 		}
-		c.JSON(400, gin.H{"errors": err})
+		c.JSON(400, gin.H{"error": err.Error()})
 	})
 
-	r.DELETE("/shard", func(c *gin.Context) {
+	r.DELETE("/shards/:address", func(c *gin.Context) {
 		var err error
 
-		form := ShardDestroyValidation{c.PostForm("address")}
+		form := ShardDestroyValidation{c.Param("address")}
 		if err = form.Submit(); err == nil {
-			if err = balancer.Deregister(c.PostForm("address")); err == nil {
+			if err = balancer.Deregister(form.Addr); err == nil {
 				c.JSON(200, gin.H{})
 				return
 			}
 		}
 		log.Println(err)
-		c.JSON(400, gin.H{"errors": err})
+		c.JSON(400, gin.H{"error": err.Error()})
 	})
 
 	return r
